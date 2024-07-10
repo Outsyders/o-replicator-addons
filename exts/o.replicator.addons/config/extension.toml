@@ -8,7 +8,7 @@ readme  = "docs/README.md"
 # preview_image = "doc/resources/preview.jpg"
 icon = "docs/resources/icon.png"
 
-repository="https://gitlab-master.nvidia.com/omniverse/kit-extensions/example"
+repository="https://github.com/Outsyders/o-replicator-addons"
 
 category = "Replicator"
 
