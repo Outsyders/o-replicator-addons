@@ -1,0 +1,45 @@
+{
+    "CaclulateFocalLength": {
+        "version": 1,
+        "categories": {"Replicator:Core": "Core Replicator nodes"},
+        "description": "Calculate the focal length to make prims look at the specified target(s)",
+        "language": "Python",
+        "metadata": {
+            "uiName": "Caclulate Focal Length"
+        },
+        "inputs": {
+            "cameraPrim": {
+                "type": "target",
+                "description": "The prims whose orientation is to be changed",
+                "metadata": {},
+                "default": []
+            },
+            "targetPrim": {
+                "type": "target",
+                "description": "The target prim(s) that the prim should look at",
+                "default": []
+            },
+            "execIn": {
+                "type": "execution",
+                "description": "exec",
+                "default": 0
+            },
+            "zoom": {
+                "type": "float",
+                "description": "",
+                "default": 0.45
+            }
+        },
+        "outputs": {
+            "execOut": {
+                "type": "execution",
+                "description": ""
+            },
+            "values": {
+                "type": "float[]",
+                "description": "Rotation to make prims look at the specified target(s)",
+                "default": [0.0]
+            }
+        }
+    }
+}

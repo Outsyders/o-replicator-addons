@@ -1,0 +1,29 @@
+
+[package]
+version = "1.0.0"
+authors = ["Josiah Reeves"]
+title = "Extending Replicator Graph Nodes"
+description = "Additional nodes for the Replicator Graph to extend its functionality."
+readme  = "docs/README.md"
+# preview_image = "doc/resources/preview.jpg"
+icon = "docs/resources/icon.png"
+
+repository="https://gitlab-master.nvidia.com/omniverse/kit-extensions/example"
+
+category = "Replicator"
+
+# Keywords for the extension
+keywords = ["kit", "omnigraph", "core", "replicator", "nodes"]
+
+# Watch the .ogn files for hot reloading (only works for Python files)
+[fswatcher.patterns]
+include = ["*.ogn", "*.py"]
+exclude = ["Ogn*Database.py"]
+
+[dependencies]
+"omni.kit.test" = {}
+"omni.graph" = {}
+
+# Main python module this extension provides, it will be publicly available as "import omni.new.extension".
+[[python.module]]
+name = "o.replicator.addons"
