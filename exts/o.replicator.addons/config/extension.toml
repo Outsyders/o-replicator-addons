@@ -1,6 +1,6 @@
 
 [package]
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Josiah Reeves"]
 title = "Extending Replicator Graph Nodes"
 description = "Additional nodes for the Replicator Graph to extend its functionality."

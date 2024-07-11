@@ -17,6 +17,10 @@ Extension with implementation of some OmniGraph nodes
 ```
 import omni.replicator.core as rep
 
+# Import addons will patch the core module
+# You can also use functions directly from the addon module
+import o.replicator.addons 
+
 camera =rep.create.camera()
 target = target = rep.create.sphere()
 

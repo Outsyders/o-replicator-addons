@@ -7,7 +7,7 @@ from inspect import getmembers, isfunction, isclass, ismodule
 from .scripts import modify
 
 import sys
-sys.modules["omni.replicator.addons.modify"] = modify
+sys.modules["o.replicator.addons.modify"] = modify
 
 from omni.replicator.core.utils import ReplicatorWrapper
 

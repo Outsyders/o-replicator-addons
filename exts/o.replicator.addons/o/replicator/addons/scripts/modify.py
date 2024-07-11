@@ -75,7 +75,7 @@ def _focus_on(
     conform: Union[int, str] = None,
     input_prims: Union[ReplicatorItem, List[str]] = None,
 ) -> ReplicatorItem:
-    node = create_node("omni.replicator.addons.CalculateFocalLength")
+    node = create_node("o.replicator.addons.CalculateFocalLength")
 
     if isinstance(zoom, ReplicatorItem):
         if zoom.node.get_attribute_exists("inputs:numSamples"):
