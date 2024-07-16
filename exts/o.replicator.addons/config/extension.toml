@@ -5,7 +5,7 @@ authors = ["Josiah Reeves"]
 title = "Extending Replicator Graph Nodes"
 description = "Additional nodes for the Replicator Graph to extend its functionality."
 readme  = "docs/README.md"
-preview_image = "doc/resources/preview.gif"
+preview_image = "docs/resources/preview.gif"
 icon = "docs/resources/icon.png"
 
 repository="https://github.com/Outsyders/o-replicator-addons"
