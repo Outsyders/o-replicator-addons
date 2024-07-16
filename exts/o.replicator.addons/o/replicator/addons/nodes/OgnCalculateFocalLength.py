@@ -45,13 +45,15 @@ def _get_time():
     timeline_iface = omni.timeline.get_timeline_interface()
     return timeline_iface.get_current_time() * timeline_iface.get_time_codes_per_seconds()
 
+
 def calculate_focal_length_from_radius(
-        camera_path: str,
-        radius: float,
-        use_horizontal_fov: Optional[bool] = None,
-        aspect_ratio: float = 1.0,
-        conform: Optional[Union[int, str]] = None,
-        ):
+    camera_path: str,
+    distance: float,
+    radius: float,
+    use_horizontal_fov: Optional[bool] = None,
+    aspect_ratio: float = 1.0,
+    conform: Optional[Union[int, str]] = None,
+):
     """
     Calculate the focal length of a camera given a radius to fit the bounding sphere of a set of prims.
 
@@ -65,12 +67,12 @@ def calculate_focal_length_from_radius(
             - 1 or "horizontal": Conform to horizontal aperture.
             - 2 or "fit": Fit the aperture to the aspect ratio.
             - 3 or "crop": Crop the aperture to the aspect ratio.
-    
+
     Returns:
         float: The calculated focal length.
     """
     camera = _get_camera_prim(camera_path)
-    
+
     time = _get_time()
 
     # h_fov_rad, v_fov_rad = self.__horizontal_fov, self.__horizontal_fov
@@ -93,17 +95,13 @@ def calculate_focal_length_from_radius(
                 new_vert_ap = v_aperture * ((new_horz_ap / h_aperture) if h_aperture else new_horz_ap)
                 return (new_horz_ap, new_vert_ap)
 
-            h_fov_rad = math.atan(
-                (h_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * Gf.Camera.FOCAL_LENGTH_UNIT)
-            )
-            v_fov_rad = math.atan(
-                (v_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * Gf.Camera.FOCAL_LENGTH_UNIT)
-            )
+            h_fov_rad = math.atan((h_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * Gf.Camera.FOCAL_LENGTH_UNIT))
+            v_fov_rad = math.atan((v_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * Gf.Camera.FOCAL_LENGTH_UNIT))
 
     def fit_horizontal():
         if use_horizontal_fov is not None:
             return use_horizontal_fov
-        
+
         if conform is None:
             conform = carb.settings.get_settings().get("/app/hydra/aperture/conform")
 
@@ -114,7 +112,7 @@ def calculate_focal_length_from_radius(
         if is_fit or (conform == 3 or conform == "crop"):
             fov_aspect = h_fov_rad / v_fov_rad
             return not (is_fit ^ (fov_aspect > aspect_ratio))
-        
+
         return True
 
     if fit_horizontal():
@@ -122,7 +120,12 @@ def calculate_focal_length_from_radius(
     else:
         h_fov_rad = v_fov_rad * aspect_ratio
 
-    focal_length = radius / math.tan(min(h_fov_rad, v_fov_rad))
+    sensor_size = min(h_fov_rad, v_fov_rad)
+
+    if distance == 0 or radius == 0:
+        return 0
+
+    focal_length = sensor_size * (distance / radius)
 
     return focal_length
 
@@ -138,7 +141,7 @@ def calculate_focal_length_from_distance(
 
     if not camera:
         return None
-    
+
     if horizontal_fov <= 0:
         carb.log_warn(f"Invalid horizontal_fov: {horizontal_fov}")
         return None
@@ -155,14 +158,10 @@ def calculate_focal_length_from_distance(
 
     if use_horizontal_fov:
         h_aperture = h_aperture if h_aperture else v_aperture * aspect_ratio
-        focal_length = (h_aperture * Gf.Camera.APERTURE_UNIT) / (
-            2.0 * math.tan(horizontal_fov / 2.0)
-        )
+        focal_length = (h_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * math.tan(horizontal_fov / 2.0))
     else:
         v_aperture = v_aperture if v_aperture else h_aperture / aspect_ratio
-        focal_length = (v_aperture * Gf.Camera.APERTURE_UNIT) / (
-            2.0 * math.tan(horizontal_fov / 2.0)
-        )
+        focal_length = (v_aperture * Gf.Camera.APERTURE_UNIT) / (2.0 * math.tan(horizontal_fov / 2.0))
 
     focal_length = distance / (2.0 * math.tan(horizontal_fov / 2.0))
 
@@ -196,9 +195,7 @@ def compute_local_transform(camera_path: str):
             world_xform = parent_xform * local_xform
         return local_xform, parent_xform, world_xform
 
-    carb.log_warn(
-        f"Framing of UsdPrims failed, {camera_path} isn't UsdGeom.Xformable or UsdGeom.Imageable"
-    )
+    carb.log_warn(f"Framing of UsdPrims failed, {camera_path} isn't UsdGeom.Xformable or UsdGeom.Imageable")
     return None, None, None
 
 
@@ -207,17 +204,13 @@ def compute_bounds(camera_path: str, target_paths: List[str]):
     usd_context = omni.usd.get_context()
 
     def add_to_range(prim_path):
-        aab_min, aab_max = usd_context.compute_path_world_bounding_box(
-            str(prim_path)
-        )
-        
+        aab_min, aab_max = usd_context.compute_path_world_bounding_box(str(prim_path))
+
         in_range = Gf.Range3d(Gf.Vec3d(*aab_min), Gf.Vec3d(*aab_max))
 
         if in_range.IsEmpty():
             aa_range = Gf.Range3d(Gf.Vec3d(-20, -20, -20), Gf.Vec3d(20, 20, 20))
-            matrix = Gf.Matrix4d(
-                *usd_context.compute_path_world_transform(prim_path)
-            )
+            matrix = Gf.Matrix4d(*usd_context.compute_path_world_transform(prim_path))
             bbox = Gf.BBox3d(aa_range, matrix)
             in_range = bbox.ComputeAlignedRange()
             if in_range.IsEmpty():
@@ -236,7 +229,8 @@ def compute_bounds(camera_path: str, target_paths: List[str]):
 
 class OgnCalculateFocalLength:
     """
-    Set prim rotation and focal length to look at the target coordinates
+    Set prim rotation and focal length to look at the target coordinates.
+    This is a modified version of the focus command.
     """
 
     @staticmethod
@@ -251,31 +245,24 @@ class OgnCalculateFocalLength:
         def failed():
             db.outputs.execOut = og.ExecutionAttributeState.DISABLED
             return False
-        
+
         if len(camera_prim_path) == 0 or camera_prim_path is None:
             return failed()
-        
+
         if len(target_prim_paths) == 0:
             return failed()
-        
+
         camera_prim_path = camera_prim_path[0]
 
         try:
-            """
-            This is copied and modified from the focus command
-            """
-            local_xform, parent_xform, world_xform = compute_local_transform(
-                camera_prim_path
-            )
+            local_xform, parent_xform, world_xform = compute_local_transform(camera_prim_path)
 
             aabbox = compute_bounds(camera_prim_path, target_prim_paths)
 
             if aabbox.IsEmpty():
-                carb.log_warn(
-                    f"Framing of UsdPrims {target_prim_paths} resulted in an empty bounding-box"
-                )
+                carb.log_warn(f"Framing of UsdPrims {target_prim_paths} resulted in an empty bounding-box")
                 return failed()
-            
+
             if True:
                 # Orient the aabox to the camera
                 target = aabbox.GetMidpoint()
@@ -297,16 +284,19 @@ class OgnCalculateFocalLength:
             distance = (camera_position - target).GetLength()
 
             # Frame against the aabox's bounding sphere
-            radius = aabbox.GetSize().GetLength() * distance * zoom
+            radius = aabbox.GetSize().GetLength() * zoom  # * distance
+
+            # carb.log_info(aabbox)
+            # carb.log_info(f"Distance: {distance}, Radius: {radius}")
 
             focal_length = calculate_focal_length_from_radius(
-                camera_prim_path, radius, use_horizontal_fov, conform=conform
+                camera_prim_path, distance, radius, use_horizontal_fov, conform=conform
             )
 
         except Exception as error:
             db.log_error(f"FocusAt Error: {error}")
             return failed()
-        
+
         if focal_length is None:
             return failed()
 
@@ -315,7 +305,7 @@ class OgnCalculateFocalLength:
                 camera = _get_camera_prim(camera_prim_path)
 
                 camera.GetAttribute("focalLength").Set(focal_length)
-        
+
         db.outputs.execOut = og.ExecutionAttributeState.ENABLED
         db.outputs.values = [focal_length]
         return True
