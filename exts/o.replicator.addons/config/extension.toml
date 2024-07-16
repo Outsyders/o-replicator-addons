@@ -1,11 +1,11 @@
 
 [package]
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Josiah Reeves"]
 title = "Extending Replicator Graph Nodes"
 description = "Additional nodes for the Replicator Graph to extend its functionality."
 readme  = "docs/README.md"
-# preview_image = "doc/resources/preview.jpg"
+preview_image = "doc/resources/preview.gif"
 icon = "docs/resources/icon.png"
 
 repository="https://github.com/Outsyders/o-replicator-addons"
