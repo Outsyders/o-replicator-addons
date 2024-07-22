@@ -210,7 +210,7 @@ def compute_bounds(camera_path: str, target_paths: List[str]):
 
         if in_range.IsEmpty():
             aa_range = Gf.Range3d(Gf.Vec3d(-20, -20, -20), Gf.Vec3d(20, 20, 20))
-            matrix = Gf.Matrix4d(*usd_context.compute_path_world_transform(prim_path))
+            matrix = Gf.Matrix4d(*usd_context.compute_path_world_transform(str(prim_path)))
             bbox = Gf.BBox3d(aa_range, matrix)
             in_range = bbox.ComputeAlignedRange()
             if in_range.IsEmpty():
