@@ -1,0 +1,50 @@
+{
+    "SetRenderProduct": {
+        "version": 1,
+        "categoryDefinitions": "config/CategoryDefinition.json",
+        "categories": "Replicator-Addons",
+        "description": "Set the render product(s) to use the given camera(s)",
+        "language": "Python",
+        "metadata": {
+            "uiName": "Set Render Product"
+        },
+        "inputs": {
+            "execIn": {
+                "type": "execution",
+                "description": "exec",
+                "default": 0
+            },
+            "prims": {
+                "type": "target",
+                "description": "The cameras to use in the render product"
+            },
+            "renderProduct": {
+                "type": "target",
+                "description": "The render product to set the cameras to",
+                "default": []
+            },
+            "width": {
+                "type": "uint",
+                "description": "Width of the render product, in pixels"
+            },
+            "height": {
+                "type": "uint",
+                "description": "Height of the render product, in pixels"
+            }
+        },
+        "outputs": {
+            "renderProductPath": {
+                "type": "token",
+                "description": "Render product path for the created hydra texture"
+            },
+            "cameraPath": {
+                "type": "token",
+                "description": "Camera path for the created hydra texture"
+            },
+            "execOut": {
+                "type": "execution",
+                "description": ""
+            }
+        }
+    }
+}

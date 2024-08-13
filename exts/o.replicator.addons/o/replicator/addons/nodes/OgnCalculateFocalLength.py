@@ -238,7 +238,6 @@ class OgnCalculateFocalLength:
         camera_prim_path: Sequence[Union[str, Sdf.Path]] = db.inputs.prims
         target_prim_paths: Union[str, Sdf.Path] = db.inputs.targetPrim
         zoom: float = db.inputs.zoom
-        set_focal_length: bool = db.inputs.setFocalLength
         use_horizontal_fov: bool = db.inputs.useHorizontalFov
         conform: Union[int, str] = db.inputs.conform
 
@@ -299,12 +298,6 @@ class OgnCalculateFocalLength:
 
         if focal_length is None:
             return failed()
-
-        if set_focal_length:
-            with Sdf.ChangeBlock():
-                camera = _get_camera_prim(camera_prim_path)
-
-                camera.GetAttribute("focalLength").Set(focal_length)
 
         db.outputs.execOut = og.ExecutionAttributeState.ENABLED
         db.outputs.values = [focal_length]

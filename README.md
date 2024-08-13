@@ -1,6 +1,13 @@
 # OmniGraph Extension [o.replicator.addons]
 Extension with implementation of some OmniGraph nodes
 
+## Features:
+- `OgnCalculateFocalLength`
+- `OgnSetRenderProduct`
+- `get_replicator_state`
+- `set_replicator_state`
+
+
 ## Calculate Focal Length
 *Calculates the focal length of a camera based on the distance between the camera and the target primitives.*
 

@@ -1,7 +1,7 @@
 {
-    "CaclulateFocalLength": {
+    "SetCameraParams": {
         "version": 1,
-        "categories": {"Replicator:Core": "Core Replicator nodes"},
+        "categories": {"Replicator:Addons": "Replicator Addons nodes"},
         "description": "Calculate the focal length to make prims look at the specified target(s)",
         "language": "Python",
         "metadata": {

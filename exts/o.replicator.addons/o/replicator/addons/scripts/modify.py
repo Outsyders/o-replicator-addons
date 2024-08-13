@@ -7,10 +7,18 @@ import omni.graph.core as og
 import omni.usd
 import usdrt
 from omni.usd._impl.utils import get_prim_at_path
-from pxr import Sdf, UsdGeom
+from pxr import Sdf, UsdGeom, UsdRender
 
 from omni.replicator.core.distribution import choice, sequence, uniform
-from omni.replicator.core.utils import ReplicatorItem, ReplicatorWrapper, create_node, sequential, set_target_prims, utils
+from omni.replicator.core.utils import (
+    viewport_manager,
+    ReplicatorItem,
+    ReplicatorWrapper,
+    create_node,
+    sequential,
+    set_target_prims,
+    utils,
+)
 
 import omni.replicator.core as rep
 
@@ -47,11 +55,10 @@ def focus(
             target=focus_on,
             zoom=zoom,
             use_horizontal_fov=use_horizontal_fov,
-            set_focal_length=False,
             conform=conform,
-            input_prims=input_prims
-            )
-        
+            input_prims=input_prims,
+        )
+
         write_node = rep.modify.attribute(
             name="focalLength",
             value=calc_node,
@@ -70,7 +77,6 @@ def _focus_on(
         List[Union[str, Sdf.Path, usdrt.Sdf.Path]],
     ],
     zoom: Union[ReplicatorItem, float] = 2.0,
-    set_focal_length: bool = True,
     use_horizontal_fov: bool = True,
     conform: Union[int, str] = None,
     input_prims: Union[ReplicatorItem, List[str]] = None,
@@ -89,25 +95,17 @@ def _focus_on(
         else:
             raise ValueError(f"The type of `zoom` must be either float or int, but got {type(zoom)}.")
 
-    if isinstance(set_focal_length, ReplicatorItem):
-        if set_focal_length.node.get_attribute_exists("inputs:numSamples"):
-            og.AttributeValueHelper(set_focal_length.node.get_attribute("inputs:numSamples")).set(1, update_usd=True)
-        utils.auto_connect(set_focal_length.node, node, mapping=[utils.AttrMap("outputs:samples", "inputs:setFocalLength")])
-    else:
-        if isinstance(set_focal_length, (int, bool)):
-            og.AttributeValueHelper(node.get_attribute("inputs:setFocalLength")).set(set_focal_length, update_usd=True)
-        elif set_focal_length is None:
-            pass
-        else:
-            raise ValueError(f"The type of `set focal length` must be bool, but got {type(set_focal_length)}.")
-
     if isinstance(use_horizontal_fov, ReplicatorItem):
         if use_horizontal_fov.node.get_attribute_exists("inputs:numSamples"):
             og.AttributeValueHelper(use_horizontal_fov.node.get_attribute("inputs:numSamples")).set(1, update_usd=True)
-        utils.auto_connect(use_horizontal_fov.node, node, mapping=[utils.AttrMap("outputs:samples", "inputs:useHorizontalFov")])
+        utils.auto_connect(
+            use_horizontal_fov.node, node, mapping=[utils.AttrMap("outputs:samples", "inputs:useHorizontalFov")]
+        )
     else:
         if isinstance(use_horizontal_fov, (int, bool)):
-            og.AttributeValueHelper(node.get_attribute("inputs:useHorizontalFov")).set(use_horizontal_fov, update_usd=True)
+            og.AttributeValueHelper(node.get_attribute("inputs:useHorizontalFov")).set(
+                use_horizontal_fov, update_usd=True
+            )
         elif use_horizontal_fov is None:
             pass
         else:
@@ -123,5 +121,35 @@ def _focus_on(
 
     if input_prims:
         set_target_prims(node, "inputs:prims", input_prims)
+
+    return node
+
+
+@ReplicatorWrapper
+def render_product(
+    rp: Union[
+        ReplicatorItem,
+        str,
+        Sdf.Path,
+        viewport_manager.HydraTexture,
+        UsdRender.Product,
+    ],
+    input_prims: Union[ReplicatorItem, str, Sdf.Path, og.Node] = None,
+) -> ReplicatorItem:
+
+    node = create_node("o.replicator.addons.SetRenderProduct")
+
+    if isinstance(rp, viewport_manager.HydraTexture):
+        rp = rp.path
+
+    if isinstance(rp, ReplicatorItem):
+        utils._connect_prims(node, "inputs:renderProduct", rp)
+    else:
+        utils.set_target_prims(node, "inputs:renderProduct", rp)
+
+    if isinstance(input_prims, ReplicatorItem):
+        input_prims.node.get_attribute("outputs:samples").connect(node.get_attribute("inputs:prims"), True)
+    else:
+        utils.set_target_prims(node, "inputs:prims", input_prims)
 
     return node

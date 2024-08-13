@@ -1,6 +1,6 @@
 
 [package]
-version = "1.0.2"
+version = "1.1.0"
 authors = ["Josiah Reeves"]
 title = "Extending Replicator Graph Nodes"
 description = "Additional nodes for the Replicator Graph to extend its functionality."
@@ -27,3 +27,60 @@ exclude = ["Ogn*Database.py"]
 # Main python module this extension provides, it will be publicly available as "import omni.new.extension".
 [[python.module]]
 name = "o.replicator.addons"
+
+[[test]]
+dependencies = [
+    "omni.kit.test",
+    "omni.kit.renderer.core",
+    "omni.kit.viewport.window",
+    "omni.timeline",
+    "omni.pip.compute",
+    "omni.physx.bundle",
+]
+
+timeout = 3600
+args = [
+    "omni.hydra.engine.stats",
+    "--/app/viewport/createCameraModelRep=false",
+    "--/rtx/post/aa/op=0",  # Don't use DLSS
+    "--/app/settings/fabricStageFrameHistoryCount=3",
+    "--/app/settings/fabricDefaultStageFrameHistoryCount=3",
+    "--/omni/replicator/RTSubframes=1",   # Simplify testing but capturing at every frame
+    "--/rtx/descriptorSets=60000",
+    "--/rtx/reservedDescriptors=500000",
+    "--/app/omni.graph.scriptnode/opt_in=true",  # Enables script (augmentation) nodes without prompt
+    "--/rtx-transient/aov/enableRtxAovs",
+    "--/rtx-transient/aov/enableRtxAovsSecondary",
+    "--/app/content/emptyStageOnStart=true",
+    "--/omni/replicator/debug=true",
+    "--/rtx/sceneDb/ambientLightIntensity=1.0",
+    "--/rtx/raytracing/cached/enabled=false",
+    "--/rtx/raytracing/lightcache/spatialCache/enabled=false",
+    "--/structuredLog/enable=false",
+    "--/exts/omni.usd/locking/onClose=true",
+    "--no-window",
+]
+stdoutFailPatterns.exclude = [
+    #"*[Error] [omni.graph.core.plugin]*",  # Don't treat testing for error messages as failed tests
+    "*__resolved_inputs:values UsdRelationship not supported in GetPrimArrayAttr*",  # TODO Remove when flatcache supports relationships
+    "*/TestGraph/Template_omni_replicator_core_OgnCameraRelativePosition: OmniGraph Error: Camera prim path not found!*",  # Ignore generated test error
+    "*/TestGraph/Template_omni_replicator_core_OgnPointCloudGenerator: OmniGraph Error: Height or width cannot have a dimension of 0!*",  # Ignore generated test error
+    "*/TestGraph/Template_omni_replicator_core_OgnWriter: OmniGraph Error: Writer ID is empty!*",  # Ignore generated test error
+    "*/World/PushGraph/scatter: OmniGraph Error: Scatter3D Error: Expected prim at /invalid to be an Xformable prim but got type Scope*",
+    "*/World/PushGraph/scatter: OmniGraph Error: Scatter3D Error: Expected prim at /invalid to be of type UsdGeom.Mesh but got type Xform*",
+    "*S3Backend: No credenials file in ~/.aws or AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables!*", # Want this error to be printed
+    "*[omni.syntheticdata.plugin] OgnSdOnNewFrame : frames * discarded*",
+    "*Could not copy attribute to FC entry for*",
+    "*Data copy failed:*",
+    "*MirroredBall environment format not supported yet.*",
+    "*/TestGraph/Template_omni_replicator_core_OgnWritePhysics: OmniGraph Error: WritePhysics Error: Expected to get a physics attribute instead received*",
+    "*[omni.syntheticdata.plugin] OgnSdRenderProductCamera : cannot read data from Fabric.*", # fabric synchronization error: try to read from the post-render graph in the fabric before it has been written in the simulation graph
+    "*[omni.fabric.plugin] getNamesAndTypes, bucketId*", # Fabric error
+    "*[Error] [omni.replicator.core.ogn.python._impl.nodes.OgnMeshDecal] Mesh decal is limited to a single target mesh.*",  #  Expected error output
+    "*[Error] [omni.replicator.core.ogn.python._impl.nodes.OgnMeshDecal] Only a single decal prim can be modified.*",  #  Expected error output
+    "*[Error] [omni.replicator.core.ogn.python._impl.nodes.OgnMeshDecal] Mesh decal is limited to a single material.*",  # Expected error output
+    "*[Error] [omni.replicator.core.ogn.python._impl.nodes.OgnMeshBoundsDecalPlacement] Can only normalize on a single target mesh.*",  # Expected error output
+    "*Trying to modify the attributes of this annotator will cause unexpected behavior.*",
+    "*Attaching a list of render products is currently not implemented*"    # Expected error message when testing invalid input
+    # TODO Make this more granular; limit to certain tests
+]

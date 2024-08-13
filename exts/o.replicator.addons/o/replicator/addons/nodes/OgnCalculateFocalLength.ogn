@@ -1,7 +1,7 @@
 {
     "CalculateFocalLength": {
         "version": 1,
-        "categories": {"Replicator:Core": "Core Replicator nodes"},
+        "categories": {"Replicator:Addons": "Replicator Addons nodes"},
         "description": "Calculate the focal length to make prims look at the specified target(s)",
         "language": "Python",
         "metadata": {
@@ -41,11 +41,6 @@
                 "type": "string",
                 "description": "Conform to the target(s) in the specified way. One of 'vertical, 'horizontal', 'fit, 'crop, 'none.",
                 "default": "fit"
-            },
-            "setFocalLength": {
-                "type": "bool",
-                "description": "",
-                "default": true
             }
         },
         "outputs": {
