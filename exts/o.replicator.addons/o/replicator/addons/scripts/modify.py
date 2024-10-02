@@ -22,7 +22,7 @@ from omni.replicator.core.utils import (
 
 import omni.replicator.core as rep
 
-from .utils import _set_node_input
+from .utils.stage import _set_node_input
 
 
 @ReplicatorWrapper

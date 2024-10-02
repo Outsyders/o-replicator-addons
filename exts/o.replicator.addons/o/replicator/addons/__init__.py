@@ -1,10 +1,11 @@
 from ._impl import *
 
-from inspect import getmembers, isfunction, isclass, ismodule
-
-# Get all the functions from the modify module
-from .scripts import modify
 from .scripts import core
+from .scripts import rep
+from .scripts import utils
+from .scripts import modify
+
+from inspect import getmembers, isfunction, isclass, ismodule
 
 import sys
 

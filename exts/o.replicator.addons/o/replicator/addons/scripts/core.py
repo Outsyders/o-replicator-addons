@@ -131,7 +131,7 @@ def _get_node_db(node: og.Node) -> Any:
     return node_db
 
 
-def get_replicator_state():
+def get_replicator_state(skip_empty: bool = False) -> dict:
     # Find all RNG nodes in the graph and get their states
     states = {}
     for node in _all_replicator_nodes():
@@ -143,12 +143,22 @@ def get_replicator_state():
         shared_state = _get_database_state(node_db, "shared_state")
         per_instance_state = _get_database_state(node_db, "per_instance_state")
 
-        states[node.get_prim_path()] = {"shared_state": shared_state, "per_instance_state": per_instance_state}
+        if skip_empty and not shared_state and not per_instance_state:
+            continue
+
+        states[node.get_prim_path()] = {
+            "shared_state": shared_state,
+            "per_instance_state": per_instance_state,
+        }
 
     return states
 
 
 def set_replicator_state(states: dict):
+    # TODO: Rep.orchestrator.step() needs to be called before the
+    # state can be set. This is a workaround for now. This should be
+    # fixed in the future.
+
     # Set the states of all RNG nodes in the graph
     for node in _all_replicator_nodes():
         node_db = _get_node_db(node)
@@ -158,7 +168,7 @@ def set_replicator_state(states: dict):
 
         node_path = node.get_prim_path()
         if node_path not in states:
-            carb.log_warning(f"Node {node_path} not found in states dict... skipping")
+            carb.log_warn(f"Node {node_path} not found in state dict... skipping")
             continue
 
         _state_dict = states[node_path]

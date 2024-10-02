@@ -13,6 +13,7 @@
         "**/vcpkg": true,
         "**/.vscode": true,
         "**/.torch": true,
+        "**/__pycache__": true,
         // "**/app": true,
     },
     

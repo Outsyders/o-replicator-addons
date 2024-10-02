@@ -1,0 +1,35 @@
+{
+    "OgnGetVisibility": {
+        "description": [
+            "Get visibility of prims"
+        ],
+        "version": 1,
+        "uiName": "Get Visibility",
+        "language": "Python",
+        "scheduling": "compute-on-request",
+        "categories": {"Replicator:Core": "Core Replicator nodes"},
+        "state": {
+        },
+
+        "inputs": {
+            "execIn": {
+                "description": ["exec"],
+                "type": "execution"
+            },
+            "prims": {
+                "type": "target",
+                "description": "Targets to count"
+            }
+        },
+        "outputs": {
+            "execOut": {
+                "description": ["exec"],
+                "type": "execution"
+            },
+            "values": {
+                "type": "bool[]",
+                "description": "Visibility value"
+            }
+        }
+    }
+}
